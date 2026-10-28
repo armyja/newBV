@@ -3,7 +3,7 @@ package dev.frost819.newbv.app.ui.screen.player
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -368,7 +368,10 @@ fun VideoPlayerScreen(
             val contentHeight = if (isRotated) displayWidth else displayHeight
             val videoContentModifier =
                 Modifier
-                    .size(contentWidth, contentHeight)
+                    // A rotated portrait frame can be taller than the unrotated screen bounds.
+                    // size() clamps that dimension before graphicsLayer rotates it, shrinking
+                    // the final picture; requiredSize keeps the full fit-sized frame for rotation.
+                    .requiredSize(contentWidth, contentHeight)
                     .then(
                         if (isRotated) {
                             Modifier.graphicsLayer { rotationZ = rotationDegrees }
