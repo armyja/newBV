@@ -382,7 +382,6 @@ fun VideoPlayerScreen(
 
             if (videoPlayer != null) {
                 BvVideoPlayer(
-                    useTextureView = isRotated,
                     modifier = videoContentModifier,
                     videoPlayer = videoPlayer,
                 )
