@@ -345,24 +345,27 @@ fun VideoPlayerScreen(
             contentAlignment = Alignment.Center,
         ) {
             // 视频画面
+            val decodedVideoWidth = videoPlayer?.videoWidth?.takeIf { it > 0 } ?: uiState.videoWidth
+            val decodedVideoHeight = videoPlayer?.videoHeight?.takeIf { it > 0 } ?: uiState.videoHeight
             val aspectRatio =
-                uiState.aspectRatio.ratio ?: run {
-                    if (uiState.videoWidth > 0 && uiState.videoHeight > 0) {
-                        uiState.videoWidth.toFloat() / uiState.videoHeight.toFloat()
+                uiState.aspectRatio.ratio
+                    ?: if (decodedVideoWidth > 0 && decodedVideoHeight > 0) {
+                        decodedVideoWidth.toFloat() / decodedVideoHeight.toFloat()
                     } else {
                         16f / 9f
                     }
-                }
 
-            // The player and danmaku share this largest aspect-correct viewport. For rotation,
-            // calculate the fit against the swapped screen bounds, then rotate both layers
-            // together so no video edge is cropped and danmaku coordinates stay aligned.
+            // The stream's decoded dimensions are authoritative; API metadata can describe a
+            // nominal canvas that differs from the actual video. Fit the displayed orientation
+            // to this device's measured bounds, then give the player and danmaku the exact same
+            // frame so rotation cannot shrink the picture or misalign the overlay.
             val rotationDegrees = uiState.aspectRatio.rotationDegrees
             val isRotated = rotationDegrees != 0f
-            val availableContentWidth = if (isRotated) maxHeight else maxWidth
-            val availableContentHeight = if (isRotated) maxWidth else maxHeight
-            val contentWidth = minOf(availableContentWidth, availableContentHeight * aspectRatio)
-            val contentHeight = contentWidth / aspectRatio
+            val displayAspectRatio = if (isRotated) 1f / aspectRatio else aspectRatio
+            val displayWidth = minOf(maxWidth, maxHeight * displayAspectRatio)
+            val displayHeight = displayWidth / displayAspectRatio
+            val contentWidth = if (isRotated) displayHeight else displayWidth
+            val contentHeight = if (isRotated) displayWidth else displayHeight
             val videoContentModifier =
                 Modifier
                     .size(contentWidth, contentHeight)
