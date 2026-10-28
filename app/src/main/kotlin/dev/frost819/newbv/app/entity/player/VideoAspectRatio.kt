@@ -21,10 +21,10 @@ enum class VideoAspectRatio(
     SixteenToNine(16f / 9f),
 
     /** 画面顺时针旋转 90 度。 */
-    Rotate90(16f / 9f, 90f),
+    Rotate90(null, 90f),
 
     /** 画面顺时针旋转 270 度。 */
-    Rotate270(16f / 9f, 270f),
+    Rotate270(null, 270f),
     ;
 
     companion object {

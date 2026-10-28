@@ -2,11 +2,8 @@ package dev.frost819.newbv.app.ui.screen.player
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -357,17 +354,30 @@ fun VideoPlayerScreen(
                     }
                 }
 
-            if (videoPlayer != null) {
-                BvVideoPlayer(
-                    modifier =
-                        if (uiState.aspectRatio.rotationDegrees == 0f) {
-                            Modifier.fillMaxHeight().aspectRatio(aspectRatio)
+            // The player and danmaku share this largest aspect-correct viewport. For rotation,
+            // calculate the fit against the swapped screen bounds, then rotate both layers
+            // together so no video edge is cropped and danmaku coordinates stay aligned.
+            val rotationDegrees = uiState.aspectRatio.rotationDegrees
+            val isRotated = rotationDegrees != 0f
+            val availableContentWidth = if (isRotated) maxHeight else maxWidth
+            val availableContentHeight = if (isRotated) maxWidth else maxHeight
+            val contentWidth = minOf(availableContentWidth, availableContentHeight * aspectRatio)
+            val contentHeight = contentWidth / aspectRatio
+            val videoContentModifier =
+                Modifier
+                    .size(contentWidth, contentHeight)
+                    .then(
+                        if (isRotated) {
+                            Modifier.graphicsLayer { rotationZ = rotationDegrees }
                         } else {
                             Modifier
-                                .width(maxHeight)
-                                .height(maxWidth)
-                                .graphicsLayer { rotationZ = uiState.aspectRatio.rotationDegrees }
                         },
+                    )
+
+            if (videoPlayer != null) {
+                BvVideoPlayer(
+                    useTextureView = isRotated,
+                    modifier = videoContentModifier,
                     videoPlayer = videoPlayer,
                 )
             }
@@ -376,8 +386,7 @@ fun VideoPlayerScreen(
             if (danmakuPlayer != null) {
                 DanmakuPlayerCompose(
                     modifier =
-                        Modifier
-                            .fillMaxSize()
+                        videoContentModifier
                             .alpha(if (danmakuState.enabledTypes.isNotEmpty()) danmakuState.alpha else 0f)
                             .danmakuMask(
                                 frame = currentDanmakuMaskFrame,
