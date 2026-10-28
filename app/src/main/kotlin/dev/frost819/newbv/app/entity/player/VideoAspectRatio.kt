@@ -9,6 +9,7 @@ package dev.frost819.newbv.app.entity.player
  */
 enum class VideoAspectRatio(
     val ratio: Float?,
+    val rotationDegrees: Float = 0f,
 ) {
     /** 默认（使用视频原始宽高比）。 */
     Default(null),
@@ -18,6 +19,12 @@ enum class VideoAspectRatio(
 
     /** 16:9。 */
     SixteenToNine(16f / 9f),
+
+    /** 画面顺时针旋转 90 度。 */
+    Rotate90(16f / 9f, 90f),
+
+    /** 画面顺时针旋转 270 度。 */
+    Rotate270(16f / 9f, 270f),
     ;
 
     companion object {

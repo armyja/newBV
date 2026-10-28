@@ -1,10 +1,12 @@
 package dev.frost819.newbv.app.ui.screen.player
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -16,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -340,7 +343,7 @@ fun VideoPlayerScreen(
         onToggleDanmaku = { danmakuViewModel.toggleDanmaku() },
         onShowShortcutTip = { text -> playerViewModel.showShortcutTip(text) },
     ) {
-        Box(
+        BoxWithConstraints(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
@@ -356,7 +359,15 @@ fun VideoPlayerScreen(
 
             if (videoPlayer != null) {
                 BvVideoPlayer(
-                    modifier = Modifier.fillMaxHeight().aspectRatio(aspectRatio),
+                    modifier =
+                        if (uiState.aspectRatio.rotationDegrees == 0f) {
+                            Modifier.fillMaxHeight().aspectRatio(aspectRatio)
+                        } else {
+                            Modifier
+                                .width(maxHeight)
+                                .height(maxWidth)
+                                .graphicsLayer { rotationZ = uiState.aspectRatio.rotationDegrees }
+                        },
                     videoPlayer = videoPlayer,
                 )
             }

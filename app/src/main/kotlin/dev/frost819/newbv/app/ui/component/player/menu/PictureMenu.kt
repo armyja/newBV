@@ -149,4 +149,6 @@ private val VideoAspectRatio.displayName: String
             VideoAspectRatio.Default -> "默认"
             VideoAspectRatio.FourToThree -> "4:3"
             VideoAspectRatio.SixteenToNine -> "16:9"
+            VideoAspectRatio.Rotate90 -> "旋转 90°"
+            VideoAspectRatio.Rotate270 -> "旋转 270°"
         }
